@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Lender – ML Credit Risk Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME VARIABLES ============ */
+  :root,
+  [data-theme="minimal"] {
+    --bg: #f6f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f4f9;
+    --text: #0f172a;
+    --muted: #5b6b82;
+    --border: #e3e8f0;
+    --accent: #2563eb;
+    --accent-2: #1d4ed8;
+    --accent-contrast: #ffffff;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    --radius: 14px;
+    --font: 'Inter', system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --hero-grad: linear-gradient(135deg, #eef4ff 0%, #f6f8fb 100%);
+  }
+  [data-theme="dark"] {
+    --bg: #0b1220;
+    --surface: rgba(255,255,255,0.04);
+    --surface-2: rgba(255,255,255,0.06);
+    --text: #e8f0ff;
+    --muted: #93a4c2;
+    --border: rgba(255,255,255,0.1);
+    --accent: #39ff14;
+    --accent-2: #22d3ee;
+    --accent-contrast: #051018;
+    --success: #39ff14;
+    --danger: #ff5577;
+    --shadow: 0 12px 40px rgba(0,0,0,.45);
+    --radius: 16px;
+    --font: 'Inter', system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
+    --hero-grad: radial-gradient(1200px 600px at 80% -10%, rgba(34,211,238,.18), transparent 60%),
+                 radial-gradient(800px 500px at 0% 100%, rgba(57,255,20,.12), transparent 60%),
+                 linear-gradient(180deg, #0b1220, #0a0f1c);
+  }
+  [data-theme="corporate"] {
+    --bg: #fffaf2;
+    --surface: #ffffff;
+    --surface-2: #fff3df;
+    --text: #1a1a1a;
+    --muted: #444;
+    --border: #1a1a1a;
+    --accent: #a30b0b;
+    --accent-2: #d4a017;
+    --accent-contrast: #ffffff;
+    --success: #0a6b1f;
+    --danger: #a30b0b;
+    --shadow: 6px 6px 0 #1a1a1a;
+    --radius: 4px;
+    --font: 'Inter', system-ui, sans-serif;
+    --font-display: 'Roboto Slab', Georgia, serif;
+    --hero-grad: linear-gradient(180deg, #fffaf2 0%, #fff3df 100%);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background .25s ease, color .25s ease;
+  }
+  a { color: inherit; }
+
+  /* ============ HEADER ============ */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(12px);
+    background: color-mix(in oklab, var(--bg) 75%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-family: var(--font-display); font-size: 18px; letter-spacing: -.01em; }
+  .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: var(--accent-contrast);
+    font-weight: 800; font-size: 14px;
+  }
+  [data-theme="corporate"] .logo { border-radius: 2px; border: 2px solid var(--border); }
+  .theme-switch { display: flex; gap: 6px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; }
+  [data-theme="corporate"] .theme-switch { border-radius: 4px; }
+  .theme-switch button {
+    border: 0; background: transparent; cursor: pointer; color: var(--muted);
+    font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+    font-family: var(--font);
+  }
+  [data-theme="corporate"] .theme-switch button { border-radius: 2px; }
+  .theme-switch button.active {
+    background: var(--accent); color: var(--accent-contrast);
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    background: var(--hero-grad);
+    padding: 80px 24px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr .8fr; gap: 48px; align-items: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12px; font-weight: 600; color: var(--muted);
+  }
+  [data-theme="corporate"] .pill { border-radius: 2px; border-width: 2px; }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  h1.title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 60px); line-height: 1.05; letter-spacing: -.02em;
+    margin: 18px 0 16px; font-weight: 800;
+  }
+  .title .grad {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 56ch; margin: 0 0 28px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 22px; border-radius: var(--radius);
+    background: var(--accent); color: var(--accent-contrast);
+    border: 1px solid var(--accent);
+    font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: var(--shadow);
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); box-shadow: none;
+  }
+  [data-theme="corporate"] .btn { box-shadow: 4px 4px 0 var(--border); border-width: 2px; }
+  [data-theme="corporate"] .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--border); }
+
+  /* Hero stat card */
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+  }
+  [data-theme="dark"] .stat-card { backdrop-filter: blur(20px); }
+  [data-theme="corporate"] .stat-card { border-width: 2px; }
+  .stat-card h3 { margin: 0 0 4px; font-size: 14px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .stat-big { font-family: var(--font-display); font-size: 48px; font-weight: 800; margin: 8px 0; letter-spacing: -.02em; }
+  .stat-grad { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .bars { display: grid; gap: 10px; margin-top: 18px; }
+  .bar-row { display: grid; grid-template-columns: 110px 1fr 48px; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); }
+  .bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+
+  /* ============ FEATURES ============ */
+  .section { max-width: 1100px; margin: 0 auto; padding: 72px 24px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  .section h2 { font-family: var(--font-display); font-size: clamp(28px, 3vw, 40px); margin: 8px 0 12px; letter-spacing: -.02em; }
+  .section p.sub { color: var(--muted); max-width: 60ch; margin: 0 0 36px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);
+  }
+  [data-theme="corporate"] .card { border-width: 2px; }
+  .card .icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: color-mix(in oklab, var(--accent) 15%, transparent);
+    color: var(--accent); display: grid; place-items: center; margin-bottom: 14px;
+    font-weight: 800;
+  }
+  [data-theme="corporate"] .card .icon { border-radius: 2px; border: 2px solid var(--border); background: var(--accent); color: var(--accent-contrast); }
+  .card h3 { margin: 0 0 6px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+  /* ============ FOOTER ============ */
+  footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 820px) {
+    .hero { padding: 48px 20px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .section { padding: 56px 20px; }
+  }
+</style>
+</head>
+<body data-theme="minimal">
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="logo">SL</div>
+      <span>Smart Lender</span>
+    </div>
+    <div class="theme-switch" role="tablist" aria-label="Design mode">
+      <button data-set-theme="minimal" class="active">Minimal</button>
+      <button data-set-theme="dark">Dark</button>
+      <button data-set-theme="corporate">Corporate</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="pill"><span class="dot"></span> XGBoost · Production-ready</span>
+      <h1 class="title">Credit decisions, <span class="grad">in seconds.</span></h1>
+      <p class="lead">Smart Lender uses a trained XGBoost ensemble to score loan applications across 11 risk features — giving credit officers fast, explainable approval predictions with confidence metrics.</p>
+      <div class="cta-row">
+        <!-- Flask route: GET /predict -->
+        <a class="btn" href="/predict">Start Prediction →</a>
+        <a class="btn ghost" href="#features">How it works</a>
+      </div>
+    </div>
+    <aside class="stat-card" aria-label="Model performance">
+      <h3>Model Accuracy</h3>
+      <div class="stat-big stat-grad">94.7%</div>
+      <p style="margin:0;color:var(--muted);font-size:13px;">Training accuracy on benchmark loan dataset. Compared across four models.</p>
+      <div class="bars">
+        <div class="bar-row"><span>XGBoost</span><div class="bar"><i style="width:94.7%"></i></div><span>94.7%</span></div>
+        <div class="bar-row"><span>Random Forest</span><div class="bar"><i style="width:88.2%"></i></div><span>88.2%</span></div>
+        <div class="bar-row"><span>Decision Tree</span><div class="bar"><i style="width:82.5%"></i></div><span>82.5%</span></div>
+        <div class="bar-row"><span>KNN</span><div class="bar"><i style="width:78.9%"></i></div><span>78.9%</span></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <span class="eyebrow">Capabilities</span>
+  <h2>Built for credit officers and financial analysts</h2>
+  <p class="sub">From single-file underwriting to high-volume batch reviews, Smart Lender keeps your decisioning consistent and auditable.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h3>Instant scoring</h3>
+      <p>Sub-second predictions powered by a tuned XGBoost classifier with 11 engineered features.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📊</div>
+      <h3>Confidence metrics</h3>
+      <p>Every decision returns a probability score so analysts can prioritise reviews and edge cases.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h3>Consistent policy</h3>
+      <p>Rules-trained ML reduces bias from manual review and keeps risk thresholds uniform across teams.</p>
+    </div>
+  </div>
+</section>
+
+<footer>© Smart Lender · ML Credit Risk Predictor</footer>
+
+<script>
+  // Theme switching — persists in localStorage, no reload required.
+  (function () {
+    const KEY = 'smart-lender-theme';
+    const body = document.body;
+    const buttons = document.querySelectorAll('[data-set-theme]');
+    const saved = localStorage.getItem(KEY) || 'minimal';
+    apply(saved);
+    buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.setTheme)));
+    function apply(theme) {
+      body.setAttribute('data-theme', theme);
+      localStorage.setItem(KEY, theme);
+      buttons.forEach(b => b.classList.toggle('active', b.dataset.setTheme === theme));
+    }
+  })();
+</script>
+</body>
+</html>

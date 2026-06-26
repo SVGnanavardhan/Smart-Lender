@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Prediction · Smart Lender</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="minimal"] {
+    --bg:#f6f8fb; --surface:#fff; --surface-2:#f1f4f9; --text:#0f172a; --muted:#5b6b82;
+    --border:#e3e8f0; --accent:#2563eb; --accent-2:#1d4ed8; --accent-contrast:#fff;
+    --success:#16a34a; --danger:#dc2626; --shadow:0 8px 24px rgba(15,23,42,.06);
+    --radius:12px; --font:'Inter',system-ui,sans-serif; --font-display:'Inter',sans-serif;
+  }
+  [data-theme="dark"] {
+    --bg:#0b1220; --surface:rgba(255,255,255,.04); --surface-2:rgba(255,255,255,.07);
+    --text:#e8f0ff; --muted:#93a4c2; --border:rgba(255,255,255,.1);
+    --accent:#39ff14; --accent-2:#22d3ee; --accent-contrast:#051018;
+    --success:#39ff14; --danger:#ff5577; --shadow:0 12px 40px rgba(0,0,0,.45);
+    --radius:14px; --font:'Inter',sans-serif; --font-display:'Inter',sans-serif;
+  }
+  [data-theme="corporate"] {
+    --bg:#fffaf2; --surface:#fff; --surface-2:#fff3df; --text:#1a1a1a; --muted:#444;
+    --border:#1a1a1a; --accent:#a30b0b; --accent-2:#d4a017; --accent-contrast:#fff;
+    --success:#0a6b1f; --danger:#a30b0b; --shadow:6px 6px 0 #1a1a1a;
+    --radius:4px; --font:'Inter',sans-serif; --font-display:'Roboto Slab',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
+
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:color-mix(in oklab,var(--bg) 75%,transparent);border-bottom:1px solid var(--border)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-family:var(--font-display);font-size:18px;text-decoration:none;color:inherit}
+  .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:var(--accent-contrast);font-weight:800;font-size:14px}
+  [data-theme="corporate"] .logo{border-radius:2px;border:2px solid var(--border)}
+  .theme-switch{display:flex;gap:6px;padding:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px}
+  [data-theme="corporate"] .theme-switch{border-radius:4px}
+  .theme-switch button{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;font-family:var(--font)}
+  [data-theme="corporate"] .theme-switch button{border-radius:2px}
+  .theme-switch button.active{background:var(--accent);color:var(--accent-contrast)}
+
+  main{max-width:980px;margin:0 auto;padding:48px 24px 80px}
+  .crumb{font-size:13px;color:var(--muted);margin-bottom:8px}
+  h1{font-family:var(--font-display);font-size:clamp(28px,3.4vw,40px);margin:0 0 6px;letter-spacing:-.02em}
+  .lead{color:var(--muted);margin:0 0 28px}
+
+  form.card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:32px;box-shadow:var(--shadow);
+  }
+  [data-theme="corporate"] form.card{border-width:2px}
+  .group-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  .group + .group{margin-top:28px;padding-top:24px;border-top:1px solid var(--border)}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1/-1}
+  label{font-size:13px;font-weight:600;color:var(--text)}
+  .hint{font-size:11px;color:var(--muted);font-weight:500}
+  input,select{
+    font-family:var(--font);font-size:14px;color:var(--text);
+    padding:11px 12px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:10px;
+    outline:none;transition:border-color .15s, box-shadow .15s;
+  }
+  [data-theme="corporate"] input,[data-theme="corporate"] select{border-radius:2px;border-width:2px;background:var(--surface)}
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 25%,transparent)}
+  input:invalid:not(:placeholder-shown){border-color:var(--danger)}
+
+  .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:28px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius);
+    background:var(--accent);color:var(--accent-contrast);border:1px solid var(--accent);
+    font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;font-family:var(--font);
+  }
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+  [data-theme="corporate"] .btn{border-width:2px;box-shadow:4px 4px 0 var(--border)}
+
+  @media (max-width:700px){
+    .grid{grid-template-columns:1fr}
+    form.card{padding:22px}
+    main{padding:32px 16px 56px}
+  }
+</style>
+</head>
+<body data-theme="minimal">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/"><div class="logo">SL</div><span>Smart Lender</span></a>
+    <div class="theme-switch">
+      <button data-set-theme="minimal" class="active">Minimal</button>
+      <button data-set-theme="dark">Dark</button>
+      <button data-set-theme="corporate">Corporate</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="crumb">Home / New Prediction</div>
+  <h1>Applicant Risk Assessment</h1>
+  <p class="lead">Enter applicant data below. Smart Lender will score the application using the trained XGBoost model.</p>
+
+  <!--
+    Flask integration:
+      action="/result" posts the form to Flask's result() handler.
+      Field `name` attributes match the columns expected by app.py.
+      For an async/JS-driven submission, swap the form's submit handler to use fetch('/result', { method:'POST', body:new FormData(form) }).
+  -->
+  <form class="card" action="/result" method="post" id="predictionForm" novalidate>
+
+    <div class="group">
+      <p class="group-title">Personal</p>
+      <div class="grid">
+        <div class="field">
+          <label for="Gender">Gender</label>
+          <select id="Gender" name="Gender" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="Married">Marital Status</label>
+          <select id="Married" name="Married" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="1">Married</option>
+            <option value="0">Single</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="Dependents">Dependents</label>
+          <select id="Dependents" name="Dependents" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="Education">Education</label>
+          <select id="Education" name="Education" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="0">Graduate</option>
+            <option value="1">Not Graduate</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="Self_Employed">Self-Employed</label>
+          <select id="Self_Employed" name="Self_Employed" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Financials</p>
+      <div class="grid">
+        <div class="field">
+          <label for="ApplicantIncome">Applicant Income <span class="hint">(monthly)</span></label>
+          <input id="ApplicantIncome" name="ApplicantIncome" type="number" min="0" step="1" placeholder="e.g. 5000" required>
+        </div>
+        <div class="field">
+          <label for="CoapplicantIncome">Co-applicant Income <span class="hint">(monthly)</span></label>
+          <input id="CoapplicantIncome" name="CoapplicantIncome" type="number" min="0" step="1" placeholder="e.g. 1500" required>
+        </div>
+        <div class="field">
+          <label for="LoanAmount">Loan Amount <span class="hint">(in thousands)</span></label>
+          <input id="LoanAmount" name="LoanAmount" type="number" min="0" step="1" placeholder="e.g. 150" required>
+        </div>
+        <div class="field">
+          <label for="Loan_Amount_Term">Loan Term <span class="hint">(months)</span></label>
+          <input id="Loan_Amount_Term" name="Loan_Amount_Term" type="number" min="1" step="1" placeholder="e.g. 360" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <p class="group-title">Credit profile</p>
+      <div class="grid">
+        <div class="field">
+          <label for="Credit_History">Credit History</label>
+          <select id="Credit_History" name="Credit_History" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="1">Meets guidelines</option>
+            <option value="0">Does not meet guidelines</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="Property_Area">Property Area</label>
+          <select id="Property_Area" name="Property_Area" required>
+            <option value="" disabled selected>Select…</option>
+            <option value="2">Urban</option>
+            <option value="1">Semi-Urban</option>
+            <option value="0">Rural</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn ghost" href="/">Cancel</a>
+      <button class="btn" type="submit">Submit Prediction →</button>
+    </div>
+  </form>
+</main>
+
+<script>
+  // Theme switcher
+  (function () {
+    const KEY = 'smart-lender-theme';
+    const body = document.body;
+    const buttons = document.querySelectorAll('[data-set-theme]');
+    const saved = localStorage.getItem(KEY) || 'minimal';
+    apply(saved);
+    buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.setTheme)));
+    function apply(theme) {
+      body.setAttribute('data-theme', theme);
+      localStorage.setItem(KEY, theme);
+      buttons.forEach(b => b.classList.toggle('active', b.dataset.setTheme === theme));
+    }
+  })();
+
+  // Lightweight client-side validation. Flask's /result still re-validates server-side.
+  document.getElementById('predictionForm').addEventListener('submit', function (e) {
+    if (!this.checkValidity()) {
+      e.preventDefault();
+      this.reportValidity();
+    }
+  });
+</script>
+</body>
+</html>

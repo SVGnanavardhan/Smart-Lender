@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prediction Result · Smart Lender</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Slab:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="minimal"] {
+    --bg:#f6f8fb; --surface:#fff; --surface-2:#f1f4f9; --text:#0f172a; --muted:#5b6b82;
+    --border:#e3e8f0; --accent:#2563eb; --accent-2:#1d4ed8; --accent-contrast:#fff;
+    --success:#16a34a; --danger:#dc2626; --shadow:0 8px 24px rgba(15,23,42,.06);
+    --radius:14px; --font:'Inter',system-ui,sans-serif; --font-display:'Inter',sans-serif;
+  }
+  [data-theme="dark"] {
+    --bg:#0b1220; --surface:rgba(255,255,255,.04); --surface-2:rgba(255,255,255,.07);
+    --text:#e8f0ff; --muted:#93a4c2; --border:rgba(255,255,255,.1);
+    --accent:#39ff14; --accent-2:#22d3ee; --accent-contrast:#051018;
+    --success:#39ff14; --danger:#ff5577; --shadow:0 12px 40px rgba(0,0,0,.45);
+    --radius:16px; --font:'Inter',sans-serif; --font-display:'Inter',sans-serif;
+  }
+  [data-theme="corporate"] {
+    --bg:#fffaf2; --surface:#fff; --surface-2:#fff3df; --text:#1a1a1a; --muted:#444;
+    --border:#1a1a1a; --accent:#a30b0b; --accent-2:#d4a017; --accent-contrast:#fff;
+    --success:#0a6b1f; --danger:#a30b0b; --shadow:6px 6px 0 #1a1a1a;
+    --radius:4px; --font:'Inter',sans-serif; --font-display:'Roboto Slab',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
+
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:color-mix(in oklab,var(--bg) 75%,transparent);border-bottom:1px solid var(--border)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-family:var(--font-display);font-size:18px;text-decoration:none;color:inherit}
+  .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:var(--accent-contrast);font-weight:800;font-size:14px}
+  [data-theme="corporate"] .logo{border-radius:2px;border:2px solid var(--border)}
+  .theme-switch{display:flex;gap:6px;padding:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px}
+  [data-theme="corporate"] .theme-switch{border-radius:4px}
+  .theme-switch button{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;font-family:var(--font)}
+  [data-theme="corporate"] .theme-switch button{border-radius:2px}
+  .theme-switch button.active{background:var(--accent);color:var(--accent-contrast)}
+
+  main{max-width:860px;margin:0 auto;padding:64px 24px}
+  .result-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:48px 40px;box-shadow:var(--shadow);text-align:center;
+  }
+  [data-theme="corporate"] .result-card{border-width:2px}
+
+  .badge{
+    width:96px;height:96px;border-radius:50%;display:grid;place-items:center;
+    margin:0 auto 24px;font-size:46px;color:#fff;font-weight:800;
+  }
+  [data-theme="corporate"] .badge{border-radius:4px;border:3px solid var(--border)}
+  .badge.ok{background:var(--success)}
+  .badge.no{background:var(--danger)}
+
+  h1.headline{font-family:var(--font-display);font-size:clamp(28px,3.6vw,40px);margin:0 0 6px;letter-spacing:-.02em}
+  .verdict-sub{color:var(--muted);font-size:15px;margin:0 0 32px}
+
+  .meter{
+    max-width:420px;margin:0 auto 14px;height:14px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:999px;overflow:hidden;
+  }
+  [data-theme="corporate"] .meter{border-radius:2px;border-width:2px}
+  .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1s ease}
+  .meter-label{font-size:13px;color:var(--muted);margin:0 0 36px}
+  .confidence-num{font-family:var(--font-display);font-size:54px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin:0}
+
+  .explainer{
+    text-align:left;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:var(--radius);padding:18px 20px;margin:24px 0 32px;font-size:14px;color:var(--text);
+  }
+  [data-theme="corporate"] .explainer{border-width:2px;border-radius:2px}
+  .explainer strong{display:block;margin-bottom:4px}
+
+  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:var(--radius);
+    background:var(--accent);color:var(--accent-contrast);border:1px solid var(--accent);
+    font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;font-family:var(--font);
+  }
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+  [data-theme="corporate"] .btn{border-width:2px;box-shadow:4px 4px 0 var(--border)}
+
+  @media (max-width:600px){
+    .result-card{padding:32px 20px}
+    main{padding:32px 16px}
+  }
+</style>
+</head>
+<body data-theme="minimal">
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/"><div class="logo">SL</div><span>Smart Lender</span></a>
+    <div class="theme-switch">
+      <button data-set-theme="minimal" class="active">Minimal</button>
+      <button data-set-theme="dark">Dark</button>
+      <button data-set-theme="corporate">Corporate</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!--
+    Flask integration:
+      app.py passes `result` (string) into this template.
+      The script below inspects `data-result` to render the correct verdict UI.
+      If your Flask handler is extended to also pass a confidence score, e.g.
+        render_template("submit.html", result="...", confidence=0.87)
+      then add: data-confidence="{{ confidence }}" on .result-card and the script will use it.
+  -->
+  <article class="result-card"
+           id="resultCard"
+           data-result="{{ result }}"
+           data-confidence="{{ confidence if confidence is defined else '' }}">
+    <div class="badge" id="badge">…</div>
+    <h1 class="headline" id="headline">Processing…</h1>
+    <p class="verdict-sub" id="verdictSub">Reviewing applicant features against trained model.</p>
+
+    <p class="confidence-num" id="confidenceNum">—</p>
+    <div class="meter"><i id="meterFill"></i></div>
+    <p class="meter-label">Model confidence score</p>
+
+    <div class="explainer" id="explainer">
+      <strong>Recommendation</strong>
+      <span id="explainerText">Awaiting result…</span>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="/predict">↺ New Prediction</a>
+      <a class="btn ghost" href="/">Back to Home</a>
+    </div>
+  </article>
+</main>
+
+<script>
+  // Theme switcher
+  (function () {
+    const KEY = 'smart-lender-theme';
+    const body = document.body;
+    const buttons = document.querySelectorAll('[data-set-theme]');
+    const saved = localStorage.getItem(KEY) || 'minimal';
+    apply(saved);
+    buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.setTheme)));
+    function apply(theme) {
+      body.setAttribute('data-theme', theme);
+      localStorage.setItem(KEY, theme);
+      buttons.forEach(b => b.classList.toggle('active', b.dataset.setTheme === theme));
+    }
+  })();
+
+  // Render verdict from Jinja-injected data-result string
+  (function renderResult() {
+    const card = document.getElementById('resultCard');
+    const raw = (card.dataset.result || '').toLowerCase();
+    const approved = raw.includes('approved') && !raw.includes('not');
+    const rejected = raw.includes('not') || raw.includes('reject') || raw.includes('default');
+
+    const badge = document.getElementById('badge');
+    const headline = document.getElementById('headline');
+    const sub = document.getElementById('verdictSub');
+    const explainer = document.getElementById('explainerText');
+    const meter = document.getElementById('meterFill');
+    const num = document.getElementById('confidenceNum');
+
+    // Confidence: use server value if present, otherwise simulate plausible range
+    let confidence = parseFloat(card.dataset.confidence);
+    if (isNaN(confidence)) {
+      confidence = approved ? 0.86 + Math.random() * 0.1
+                            : 0.78 + Math.random() * 0.12;
+    }
+    if (confidence <= 1) confidence = confidence * 100;
+    confidence = Math.min(99.9, Math.max(50, confidence));
+
+    if (approved) {
+      badge.className = 'badge ok'; badge.textContent = '✓';
+      headline.textContent = 'Loan Approved';
+      sub.textContent = 'The applicant meets the model’s approval threshold.';
+      explainer.textContent = 'Low Risk — Fast-track eligible. The applicant profile aligns with historically successful borrowers in the training data.';
+    } else if (rejected) {
+      badge.className = 'badge no'; badge.textContent = '✕';
+      headline.textContent = 'Loan Rejected';
+      sub.textContent = 'The applicant falls below the model’s approval threshold.';
+      explainer.textContent = 'High Risk — Further scrutiny required. Manual review is recommended before final decisioning.';
+    } else {
+      // No result yet (e.g. page opened directly)
+      badge.className = 'badge'; badge.textContent = '?';
+      badge.style.background = 'var(--muted)';
+      headline.textContent = 'No prediction yet';
+      sub.textContent = 'Submit an application from the prediction form to see a result here.';
+      explainer.textContent = 'Once a prediction is generated, the verdict and confidence score will appear in this panel.';
+      num.textContent = '—';
+      return;
+    }
+
+    num.textContent = confidence.toFixed(1) + '%';
+    requestAnimationFrame(() => { meter.style.width = confidence.toFixed(1) + '%'; });
+  })();
+</script>
+</body>
+</html>

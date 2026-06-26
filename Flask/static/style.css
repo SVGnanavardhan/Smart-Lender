@@ -1,0 +1,15 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  line-height: 1.6;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}
